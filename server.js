@@ -9,8 +9,14 @@ var morgan       = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser   = require('body-parser');
 var session      = require('express-session');
+var MongoStore = require('connect-mongodb-session')(session);
 
-mongoose.connect('mongodb://localhost/passport'); // connect to our database
+var dbPath = 'mongodb://localhost:27017/passport';
+mongoose.connect(dbPath); // connect to our database
+var store = new MongoStore({
+  uri: dbPath,
+  collection: 'webSessions'
+});
 
 require('./config/passport')(passport); // pass passport for configuration
 
@@ -25,6 +31,7 @@ app.set('view engine', 'pug'); // set up ejs for templating
 // required for passport
 app.use(session({
     secret: 'ilovescotchscotchyscotchscotch', // session secret
+    store: store,
     resave: true,
     saveUninitialized: true
 }));
